@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Piano</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.32/Tone.min.js"></script>
+
+  <style type="text/css">
+    .container {
+      width: 800px;
+      /*border: 1px solid gray;*/
+      margin: 0 auto;
+    }
+
+    .appname {
+      text-align: center;
+      font-size: 30px;
+    }
+
+    .note {
+      /*border: 1px solid gray;*/
+      background-color: rgb(250, 181, 98);
+      width: 380px;
+      height: 200px;
+      margin: 0 auto;
+      margin-bottom: 20px;
+      display: grid;
+      place-items: center;
+    }
+
+    .note p {
+      font-size: 55px;
+    }
+
+
+    .keys {
+      display: flex;
+      justify-content: center;
+      /*border: 1px solid gray;*/
+      position: relative;
+    }
+
+    .key {
+      box-shadow: 0 4px #818694;
+      border: solid 2px;
+      border-radius: 4px;
+      width: 70px;
+      padding-top: 250px;
+      margin-right: 1px;
+      margin-left: 1px;
+      text-align: center;
+      font-size: 22px;
+
+    }
+
+
+    .blackkey {
+      box-shadow: 0 4px #818694;
+      background-color: black;
+      border: solid 2px;
+      border-radius: 4px;
+      width: 50px;
+      height: 180px;
+
+    }
+
+    .CS {
+      position: absolute;
+      z-index: 999;
+      left: 180px;
+    }
+
+    .DS {
+      position: absolute;
+      z-index: 999;
+      left: 260px;
+    }
+
+    .FS {
+      position: absolute;
+      z-index: 999;
+      left: 410px;
+    }
+
+    .GS {
+      position: absolute;
+      z-index: 999;
+      left: 485px;
+    }
+
+    .AS {
+      position: absolute;
+      z-index: 999;
+      left: 560px;
+    }
+
+    .playbtn {
+      text-align: center;
+      margin-top: 20px;
+      margin-bottom: 80px;
+    }
+
+    .btn {
+      display: inline-block;
+      background-color: #34aa0c;
+      box-shadow: 0 4px #818694;
+      border: none;
+      border-radius: 4px;
+      width: 200px;
+      height: 60px;
+      color: #fff;
+      font-size: 20px;
+    }
+  </style>
+
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="appname" id="repertory">Web Piano</div>
+
+    <div class="note">
+      <p id="nowplaying"></p>
+    </div>
+    <div class="keys">
+      <div class="key C5" id="btn_C5" data-note="ド" name="ド">ド</div>
+      <div class="blackkey CS"></div>
+      <div class="key D5" id="btn_D5" data-note="レ" name="レ">レ</div>
+      <div class="blackkey DS"></div>
+      <div class="key E5" id="btn_E5" data-note="ミ">ミ</div>
+      <div class="key F5" id="btn_F5" data-note="ファ">ファ</div>
+      <div class="blackkey FS"></div>
+      <div class="key G5" id="btn_G5" data-note="ソ">ソ</div>
+      <div class="blackkey GS"></div>
+      <div class="key A5" id="btn_A5" data-note="ラ">ラ</div>
+      <div class="blackkey AS"></div>
+      <div class="key B5" id="btn_B5" data-note="シ">シ</div>
+
+    </div>
+
+
+    <div class="playbtn">
+      <input type="submit" class="btn" value="自動演奏" id="ap" onclick="autoplay();">
+    </div>
+
+  </div>
+</body>
+<script type="text/javascript">
+
+  ////音名表示を関数に定義////
+  let keycount = -1;
+
+  function eeeee() {
+    if (keycount != -1) {
+      // Timeoutのクリア
+      clearTimeout(keycount);
+      keycount = -1;
+    }
+
+    // 音名の表示 //
+    document.getElementById('nowplaying').innerText = this.dataset.note;
+
+    // 1秒経つと消える処理 //
+    keycount = setTimeout(() => {
+      document.getElementById('nowplaying').innerText = ""
+    }, 1000);
+  };
+
+  //queSelAllでclass:keyを持つ要素を読み取り関数を呼び出す
+  document.querySelectorAll('.key').forEach(function (i) {
+    i.addEventListener('click', eeeee, true);
+  }
+  );
+
+
+
+
+
+  ////////tonejsここから////////
+
+  Tone.Transport.bpm.value = 60; // テンポ
+
+  const btnC = document.getElementById('btn_C5');
+  const btnD = document.getElementById('btn_D5');
+  const btnE = document.getElementById('btn_E5');
+  const btnF = document.getElementById('btn_F5');
+  const btnG = document.getElementById('btn_G5');
+  const btnA = document.getElementById('btn_A5');
+  const btnB = document.getElementById('btn_B5');
+
+  init();
+
+  // 音を鳴らす部分
+  btnC.addEventListener('click', playSound_C);
+  btnD.addEventListener('click', playSound_D);
+  btnE.addEventListener('click', playSound_E);
+  btnF.addEventListener('click', playSound_F);
+  btnG.addEventListener('click', playSound_G);
+  btnA.addEventListener('click', playSound_A);
+  btnB.addEventListener('click', playSound_B);
+
+
+  // 初期設定
+  function init() {
+    synth = new Tone.Synth().toMaster();
+    state = true;
+  }
+
+  // 初期設定適用後に発動するイベント処理
+  function playSound_C() {
+    if (!state) return;
+    synth.triggerAttackRelease('C5', '8n');
+  }
+
+  function playSound_D() {
+    if (!state) return;
+    synth.triggerAttackRelease('D5', '8n');
+  }
+
+  function playSound_E() {
+    if (!state) return;
+    synth.triggerAttackRelease('E5', '8n');
+  }
+
+  function playSound_F() {
+    if (!state) return;
+    synth.triggerAttackRelease('F5', '8n');
+  }
+
+  function playSound_G() {
+    if (!state) return;
+    synth.triggerAttackRelease('G5', '8n');
+  }
+
+  function playSound_A() {
+    if (!state) return;
+    synth.triggerAttackRelease('A5', '8n');
+  }
+
+  function playSound_B() {
+    if (!state) return;
+    synth.triggerAttackRelease('B5', '8n');
+  }
+
+  ///tonejsここまで///
+
+  //自動演奏の楽譜設定
+  const scoreTwinkle =
+    ["ド",
+      "",
+      "ド",
+      "",
+      "ソ",
+      "",
+      "ソ",
+      "",
+      "ラ",
+      "",
+      "ラ",
+      "",
+      "ソ",
+      "ソ",
+      "ソ",
+      "ソ",
+
+      "ファ",
+      "",
+      "ファ",
+      "",
+      "ミ",
+      "",
+      "ミ",
+      "",
+      "レ",
+      "",
+      "レ",
+      "",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+
+      "ソ",
+      "",
+      "ソ",
+      "",
+      "ファ",
+      "",
+      "ファ",
+      "",
+      "ミ",
+      "",
+      "ミ",
+      "",
+      "レ",
+      "レ",
+      "レ",
+      "レ",
+
+      "ソ",
+      "",
+      "ソ",
+      "",
+      "ファ",
+      "",
+      "ファ",
+      "",
+      "ミ",
+      "",
+      "ミ",
+      "",
+      "レ",
+      "レ",
+      "レ",
+      "レ",
+
+      "ド",
+      "",
+      "ド",
+      "",
+      "ソ",
+      "",
+      "ソ",
+      "",
+      "ラ",
+      "",
+      "ラ",
+      "",
+      "ソ",
+      "ソ",
+      "ソ",
+      "ソ",
+
+      "ファ",
+      "",
+      "ファ",
+      "",
+      "ミ",
+      "",
+      "ミ",
+      "",
+      "レ",
+      "",
+      "レ",
+      "",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+    ];
+
+  const scoreTulip =
+    ["ド",
+      "ド",
+      "レ",
+      "レ",
+      "ミ",
+      "ミ",
+      "ミ",
+      "ミ",
+
+      "ド",
+      "ド",
+      "レ",
+      "レ",
+      "ミ",
+      "ミ",
+      "ミ",
+      "ミ",
+
+      "ソ",
+      "ソ",
+      "ミ",
+      "ミ",
+      "レ",
+      "レ",
+      "ド",
+      "ド",
+      "レ",
+      "レ",
+      "ミ",
+      "ミ",
+      "レ",
+      "レ",
+      "レ",
+      "レ",
+
+      "ド",
+      "ド",
+      "レ",
+      "レ",
+      "ミ",
+      "ミ",
+      "ミ",
+      "ミ",
+
+      "ド",
+      "ド",
+      "レ",
+      "レ",
+      "ミ",
+      "ミ",
+      "ミ",
+      "ミ",
+
+      "ソ",
+      "ソ",
+      "ミ",
+      "ミ",
+      "レ",
+      "レ",
+      "ド",
+      "ド",
+      "レ",
+      "レ",
+      "ミ",
+      "ミ",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+
+      "ソ",
+      "",
+      "ソ",
+      "",
+      "ミ",
+      "",
+      "ソ",
+      "",
+      "ラ",
+      "",
+      "ラ",
+      "",
+      "ソ",
+      "ソ",
+      "ソ",
+      "ソ",
+
+      "ミ",
+      "",
+      "ミ",
+      "",
+      "レ",
+      "",
+      "レ",
+      "",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド",
+      "ド"
+    ]
+
+
+  //自動演奏前に定義
+  apbtn = 0
+
+
+  function autoplay() {
+
+
+    switch (apbtn == 0) {
+      case true:
+        btnC.removeEventListener('click', playSound_C);
+        btnD.removeEventListener('click', playSound_D);
+        btnE.removeEventListener('click', playSound_E);
+        btnF.removeEventListener('click', playSound_F);
+        btnG.removeEventListener('click', playSound_G);
+        btnA.removeEventListener('click', playSound_A);
+        btnB.removeEventListener('click', playSound_B);
+        //
+        document.querySelectorAll('.key').forEach(function (i) {
+          i.removeEventListener('click', eeeee, true);
+        }
+        );
+
+
+
+        //二度目に押したときの条件分岐のため
+        apbtn = 1
+
+        //鍵盤で鳴らした音名が出ている時に自動演奏すると不具合があるので
+        //ここでタイムアウトのクリア
+        clearTimeout(keycount);
+
+
+        //ボタン内の文字変更
+        document.getElementById('ap').value = "演奏中止";
+
+        //ランダムに1か2を出力、1はきらきら星、2はチューリップ
+        const repertory = Math.floor(Math.random() * 2 + 1);
+        let i = 0
+
+
+
+        switch (repertory == 1) {
+          case true: //きらきら星
+            document.getElementById('repertory').innerText = "自動演奏中です：きらきら星";
+            Tone.Transport.start();
+            let autoTwinkle = setInterval(function () {
+              document.getElementById('nowplaying').innerText = scoreTwinkle[i];
+              i++;
+              if (i == scoreTwinkle.length) {
+                clearInterval(autoTwinkle);
+                location.reload();
+
+              };
+            }, 500);
+
+            break;	//switch文の処理を終了する
+
+          default: //チューリップ
+            document.getElementById('repertory').innerText = "自動演奏中です：チューリップ";
+            let autoTulip = setInterval(function () {
+              document.getElementById('nowplaying').innerText = scoreTulip[i];
+              i++;
+              if (i == scoreTulip.length) {
+                clearInterval(autoTulip);
+                location.reload();
+
+              };
+            }, 250);
+        }
+        break;	//switch文の処理を終了する
+
+      default:
+        location.reload();
+        break;	//switch文の処理を終了する
+
+    }
+
+  };
+
+
+
+
+
+</script>
+
+
+
+
+
+</html>
